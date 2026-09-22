@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Game ratings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Lora:ital,wght@1,400;1,500;1,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0f13; --bg-raise:#15181e; --text:#ece8e0; --text-dim:#8d9098;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-snap-type:y proximity; scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{background:var(--bg); color:var(--text); font-family:'Work Sans', sans-serif; overflow-x:hidden;}
+  .tier-display{font-family:'Fraunces', serif;}
+
+  /* Scrollbar removal */
+  html{scrollbar-width:none;}
+  html::-webkit-scrollbar{display:none;}
+
+  nav.dots{position:fixed; right:1.4rem; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:.75rem; z-index:50;}
+  nav.dots button{width:16px; height:16px; border-radius:50%; border:1px solid var(--text-dim); background:transparent; cursor:pointer; padding:0; opacity:.5; transition:opacity .25s, transform .25s;}
+  nav.dots button.active{opacity:1; transform:scale(1.2);}
+  nav.dots button{display:flex; align-items:center; justify-content:center; font:500 11px/1 'Work Sans', sans-serif; letter-spacing:-.02em; color:var(--text-dim);}
+  nav.dots button.active{color:var(--text);}
+
+  section.tier{min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; justify-content:center; position:relative; overflow:hidden; padding:4rem 6vw; scroll-snap-align:start; border-bottom:1px solid rgba(255,255,255,.05);}
+  .ghost-num{position:absolute; right:-2vw; top:50%; transform:translateY(-50%); font-size:min(60vw, 46rem); line-height:1; font-weight:500; color:var(--tc); opacity:.07; pointer-events:none; user-select:none; letter-spacing:-.04em;}
+  .tier-head{max-width:780px; position:relative; z-index:2;}
+  .tier-num{font-size:clamp(2.2rem, 5vw, 3.6rem); color:var(--tc); line-height:1.05; display:inline-block; margin-bottom:.6rem;}
+  .tier-title{font-family:'Lora', serif; font-style:italic; font-size:clamp(1rem, 1.6vw, 1.25rem); font-weight:500; color:var(--text-dim); opacity:.92; margin-bottom:.9rem; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility;}
+  .tier-desc{color:var(--text-dim); font-size:1.02rem; line-height:1.6; max-width:60ch;}
+
+  /* ---------- Landing ---------- */
+  section.landing{background:radial-gradient(ellipse 70% 60% at 15% 50%, rgba(243,201,105,.17), transparent 70%);}
+  .landing-head{max-width:900px; position:relative; z-index:2;}
+  .landing-phrase{font-family:'Fraunces', serif; font-weight:500; font-size:clamp(2.6rem, 7vw, 5.2rem); line-height:1.05; letter-spacing:-.01em; color:var(--text); margin-bottom:.9rem;}
+  .landing-sub{font-family:'Lora', serif; font-style:italic; font-weight:500; font-size:clamp(1.15rem, 2.4vw, 1.7rem); color:var(--text-dim); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility;}
+  .landing-strip{display:flex; gap:3px; width:min(240px, 60vw); height:3px; margin-top:2.4rem;}
+  .landing-strip span{flex:1; border-radius:2px; opacity:.9;}
+  .landing-stats{margin-top:1.1rem; font-size:.95rem; letter-spacing:.04em; color:var(--text-dim);}
+  .landing-stats b{color:var(--text); font-weight:500;}
+  .scroll-cue{position:absolute; left:6vw; bottom:2rem; display:flex; flex-direction:column; align-items:flex-start; gap:.6rem; font-size:.72rem; letter-spacing:.18em; text-transform:uppercase; color:var(--text-dim); opacity:.75; pointer-events:none;}
+  .scroll-cue::after{content:''; width:1px; height:34px; background:linear-gradient(to bottom, var(--text-dim), transparent); transform-origin:top; animation:cue 2.4s ease-in-out infinite;}
+  @keyframes cue{0%,100%{transform:scaleY(.4); opacity:.4;} 50%{transform:scaleY(1); opacity:1;}}
+  @media (prefers-reduced-motion:reduce){.scroll-cue::after{animation:none;}}
+
+  .rail{display:grid; grid-template-columns:repeat(auto-fill, 198px); gap:1.6rem; margin-top:3rem; padding-bottom:1rem; position:relative; z-index:2; align-items:start;}
+  .card{width:198px; position:relative; z-index:1;}
+  .cover{width:198px; height:198px; border-radius:3px; background:linear-gradient(155deg, #181c24, #262b34); border:1px solid rgba(255,255,255,.08); overflow:hidden; position:relative; transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease, z-index .35s;}
+  .cover:hover{transform:translateY(-6px); box-shadow:0 14px 34px -10px var(--cs), 0 0 0 1px var(--tc); border-color:var(--tc); z-index:5;}
+  .cover img{position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; object-position:center top; display:block;}
+  .cover .placeholder{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:.9rem; text-align:center; font-family:'Fraunces', serif; font-size:1.05rem; font-weight:500; line-height:1.15; color:var(--text-dim);}
+
+  .info{margin-top:.75rem;}
+  .info .name{font-family:'Fraunces', serif; font-size:1.05rem; font-weight:500; line-height:1.2; color:var(--text); min-height:2.4em;}
+  .meta{display:flex; justify-content:space-between; margin-top:.4rem; font-size:.82rem; color:var(--text-dim);}
+  .meta .rating{color:var(--tc); font-weight:600;}
+  .meta .star{color:#f3c969; margin-left:.15rem;}
+  .meta .incomplete{color:var(--tc); opacity:.85;}
+
+  /* ---------- Footer ---------- */
+  .site-end{padding:5rem 6vw 4rem; display:flex; flex-direction:column; align-items:flex-start; gap:1.4rem; scroll-snap-align:end;}
+  .end-line{font-family:'Lora', serif; font-style:italic; font-weight:500; font-size:clamp(1.05rem, 2vw, 1.4rem); color:var(--text-dim); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility;}
+  .end-link{font-size:.75rem; letter-spacing:.18em; text-transform:uppercase; color:var(--text-dim); text-decoration:none; opacity:.85; transition:color .25s, opacity .25s;}
+  .end-link span{display:inline-block; transition:transform .25s;}
+  .end-link:hover{color:var(--text); opacity:1;}
+  .end-link:hover span{transform:translateY(-3px);}
+
+  @media (max-width:640px){
+    section.tier{padding:5rem 6vw 3rem; justify-content:flex-start;}
+    section.landing{justify-content:center;}
+
+    .ghost-num{
+    top:10rem;
+    right:4vw;
+    transform:none;
+    font-size:30vw;
+    }
+    
+    nav.dots{
+    top:auto;
+    right:auto;
+    left:50%;
+    bottom:calc(.9rem + env(safe-area-inset-bottom, 0px));
+    transform:translateX(-50%);
+    flex-direction:row;
+    gap:.6rem;}
+    
+    html{scroll-snap-type:none;}
+    section.tier{scroll-snap-align:none;}
+    .site-end{scroll-snap-align:none;}
+
+    .cover:hover{transform:none; box-shadow:none; border-color:rgba(255,255,255,.08);}
+  }
+
+
+</style>
+</head>
+<body>
+
+<nav class="dots" id="dots" aria-label="Tier navigation"></nav>
+<main id="tiers"></main>
+
+<footer class="site-end">
+  <p class="end-line">Save point reached. The next game is on its way.</p>
+  <a class="end-link" id="play-again" href="#home">Play again <span>↑</span></a>
+</footer>
+
+<script>
+/* ============ EDIT THIS TO ADD / CHANGE GAMES ============
+   Each tier needs: num, color (hex), title, desc, games[]
+   Each game needs: name, rating, hours. cover is optional (image path/url);
+   leave it out and the name will show as a text placeholder card.
+   progress is optional (0-100) - add it for a game you haven't finished yet;
+   it shows as a small "% " tag next to the hours. Omit it, or set it to 100, for finished games.
+   The landing page counts games and hours from this list automatically.
+============================================================ */
+const TIERS = [
+  { num:10, color:'#f3c969', label:'Masterpiece', title:'Some games end. These changed me a little, and stayed.',
+    games:[
+      {name:'Elden Ring', rating:10, hours:300, cover:'covers/elden_ring.jpg'},
+      {name:'Nier Replicant ver.1.22474487139', rating:10, hours:45, cover:'covers/nier_replicant.jpg'},
+      {name:"NieR: Automata Game of the YoRHa Edition", rating:10, hours:38, cover:"covers/nier_automata.jpg"},
+      {name:'Red Dead Redemption II', rating:10, hours:140, cover:'covers/red_dead_2.jpg'}
+    ] },
+
+  { num:9, color:'#e8935a', label:'Outstanding', title:'Games that left a warm glow long after I put the controller down.',
+    games:[
+      {name:'Resident Evil 4', rating:9, hours:30, cover:'covers/re4.jpg'},
+      {name:'Resident Evil Requiem', rating:9, hours:12, cover:'covers/re9.jpg'},
+      {name:'Disco Elysium', rating:9, hours:30,cover:'covers/disco_elysium.jpg'}
+    ] },
+
+  { num:8, color:'#d9735a', label:'Excellent', title:'Beautifully made, and I enjoyed every step of the way.',
+    games:[ 
+      {name:'Bloodborne', rating:8, hours:90, cover:'covers/bloodborne.jpg'},
+      {name:'Dark Souls III', rating:8, hours:95, cover:'covers/ds3.jpg'},
+      {name:'Sekiro', rating:8, hours:75, cover:'covers/sekiro.jpg'},
+      {name:'Hitman: World of Assassination', rating:8, hours:350, cover:'covers/hitman_woa.jpg'},
+      {name:'Rainbow Six Siege', rating:8, hours:418, cover:'covers/r6.jpg'}
+     ] },
+
+  { num:7, color:'#5fa8c9', label:'Very Good', title:'A genuinely satisfying experience, just a few rough edges short of greatness.',
+    games:[
+      {name:'Alien Isolation', rating:7, hours:25, cover:'covers/alien_isolation.jpg'},
+      {name:'Death Stranding', rating:7, hours:70, cover:'covers/death_stranding.jpg'},
+      {name:'Ghost Recon Wildlands', rating:7, hours:55, cover:'covers/gr_wildlands.jpg'},
+      {name:'Ghost Recon Breakpoint', rating:7, hours:100, cover:'covers/gr_breakpoint.jpg'},
+      {name:'GTA V<br>(story mode)', rating:7, hours:35, cover:'covers/gta5.jpg'}
+    ] },
+
+  { num:6, color:'#5fb3b0', label:'Good', title:'A step above mediocre, with enough going for it to stand out a little.',
+    games:[
+      {name:'Ghost of Tsushima', rating:6, hours:46, cover:'covers/ghost_of_tsushima.jpg'},
+      {name:'Resident Evil 2', rating:6, hours:15, cover:'covers/re2.jpg'},
+      {name:'Mafia', rating:6, hours:11, cover:'covers/mafia1.jpeg'},
+      {name:'Darkwood', rating:6, hours:14, progress:95, cover:'covers/darkwood.jpg'},
+      {name:'Lego Batman (PS2)', rating:6, cover:'covers/lego_batman.jpg'},
+      {name:'Fortnite<br>(only seasons 1-3)', rating:6, cover:'covers/fortnite.jpg'},
+      {name:'Mass Effect', rating:6, hours:25, cover:'covers/mass_effect1.jpg'}
+    ] },
+
+  { num:5, color:'#8f8fae', label:'Decent', title:'A mediocre experience, not good but not bad either.',
+    games:[
+      {name:'Resident Evil Village', rating:5, hours:9, cover:'covers/re8.jpg'},
+      {name:'Resident Evil 3', rating:5, hours:7, cover:'covers/re3.jpg'},
+      {name:'Dark Souls', rating:5, hours:40, cover:'covers/ds1.jpg'},
+      {name:'Dark Souls II', rating:5, hours:50, cover:'covers/ds2.jpg'},
+      {name:'Kingdom Come Deliverance', rating:5, hours:71, progress:50, cover:'covers/kingdom_come.jpg'},
+      {name:'Sifu', rating:5, hours:20, cover:'covers/sifu.jpg'},
+      {name:'Shadow of the Tomb Raider', rating:5, hours:20, cover:'covers/tb_shadow.jpg'}
+    ] },
+
+  { num:4, color:'#7a7a95', label:'Underwhelming', title:'Shallow and unremarkable, but the gameplay is fun.',
+    games:[
+      {name:'Rocket League', rating:4, hours:56, cover:'covers/rocket_league.jpg'},
+      {name:'Enlisted', rating:4, hours:70, cover:'covers/enlisted.jpg'},
+      {name:'F1 2019', rating:4, hours:455, cover:'covers/f1_2019.jpeg'},
+      {name:'World of Warships', rating:4, hours:250, cover:'covers/wow.jpeg'},
+      {name:'GTA V (online)', rating:4, hours:375, cover:'covers/gta5.jpg'},
+      {name:'War Thunder', rating:4, hours:746, cover:'covers/war_thunder.jpg'},
+      {name:'Phasmophobia', rating:4, hours:30, cover:'covers/phasmophobia.jpg'},
+      {name:'World of Tanks', rating:4, hours:285, cover:'covers/wot.jpg'},
+      {name:'Snowrunner', rating:4, hours:280, cover:'covers/snowrunner.jpg'},
+      {name:'Warframe', rating:4, hours:145, cover:'covers/warframe.jpg'},
+    ] },
+
+  { num:3, color:'#6b6b78', label:"Didn't Like It", title:'Promising ideas that lost their way or never quite came together.',
+    games:[
+      {name:'Mafia II', rating:3, hours:10, cover:'covers/mafia2.jpg'},
+      {name:'Firewatch', rating:3, hours:4, cover:'covers/firewatch.jpg'},
+      {name:'Mafia III', rating:3, hours:13, progress:25, cover:'covers/mafia3.jpg'},
+      {name:"Demon's Souls", rating:3, hours:26, cover:'covers/demon_souls.jpg'},
+      {name:'Uncharted 4', rating:3, hours:16, cover:'covers/uncharted4.jpg'}
+    ] },
+
+  { num:2, color:'#4f5a68', label:'Poor', title:'An experience that felt tedious or pointless more often than not.',
+    games:[
+      {name:'Lies of P', rating:2, hours:37, progress:90, cover:'covers/lies_of_p.jpg'},
+      {name:'Resident Evil 7: Biohazard', rating:2, hours:11, cover:'covers/re7.jpg'}
+    ] },
+
+  { num:1, color:'#454c56', label:'Total Letdown', title:"An experience that simply didn't work, from start to finish.",
+    games:[
+      {name:'Sniper Elite 4', rating:1, hours:13, progress:10, cover:'covers/sniper_elite_4.jpg'}
+    ] },
+];
+
+
+function hexToRgba(hex, a){
+  const n = parseInt(hex.slice(1),16);
+  return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+}
+
+const tiersEl = document.getElementById('tiers');
+const dotsEl = document.getElementById('dots');
+
+/* ---------- Landing section ---------- */
+const totalGames = TIERS.reduce((n, t) => n + t.games.length, 0);
+const totalHours = TIERS.reduce((n, t) => n + t.games.reduce((h, g) => h + (g.hours || 0), 0), 0);
+
+const landing = document.createElement('section');
+landing.className = 'tier landing';
+landing.id = 'home';
+landing.style.setProperty('--tc', '#f3c969');
+landing.innerHTML = `
+  <div class="landing-head">
+    <h1 class="landing-phrase">Games are art.</h1>
+    <p class="landing-sub">Worlds I've lived in, and what they left me with.</p>
+    <div class="landing-strip" aria-hidden="true">${TIERS.map(t => `<span style="background:${t.color}"></span>`).join('')}</div>
+    <p class="landing-stats"><b>${totalGames.toLocaleString('en-US')}</b> ${totalGames === 1 ? 'game' : 'games'} · <b>${totalHours.toLocaleString('en-US')}</b> ${totalHours === 1 ? 'hour' : 'hours'}</p>
+  </div>
+  <div class="scroll-cue" aria-hidden="true">Scroll</div>`;
+tiersEl.appendChild(landing);
+
+const homeDot = document.createElement('button');
+homeDot.dataset.t = 'home';
+homeDot.title = 'Home';
+homeDot.textContent = 'H';
+homeDot.classList.add('active');
+homeDot.onclick = () => landing.scrollIntoView({behavior:'smooth'});
+dotsEl.appendChild(homeDot);
+
+/* ---------- Tiers ---------- */
+TIERS.forEach((t) => {
+  const section = document.createElement('section');
+  section.className = 'tier';
+  section.id = 't'+t.num;
+  section.style.setProperty('--tc', t.color);
+  section.style.setProperty('--cs', hexToRgba(t.color, .3));
+
+  const cards = t.games.map(g => `
+    <div class="card">
+      <div class="cover">
+        ${g.cover ? `<img src="${g.cover}" alt="${g.name} cover">` : `<div class="placeholder">${g.name}</div>`}
+      </div>
+      <div class="info">
+        <div class="name">${g.name}</div>
+        <div class="meta">
+          <span class="rating">${g.rating}<span class="star">★</span></span>
+          <span>${g.progress != null && g.progress < 100 ? `<span class="incomplete">${g.progress}%</span> · ` : ''}${g.hours != null ? g.hours + ' hrs' : '— hrs'}</span>
+        </div>
+      </div>
+    </div>`).join('');
+
+  section.innerHTML = `
+    <div class="ghost-num tier-display">${t.num}</div>
+    <div class="tier-head">
+      <div class="tier-num tier-display">${t.label}</div>
+      <div class="tier-title">${t.title}</div>
+    </div>
+    <div class="rail">${cards}</div>`;
+  tiersEl.appendChild(section);
+
+  const dot = document.createElement('button');
+  dot.dataset.t = section.id;
+  dot.title = t.num;
+  dot.textContent = t.num;
+  dot.onclick = () => section.scrollIntoView({behavior:'smooth'});
+  dotsEl.appendChild(dot);
+});
+
+const dots = [...dotsEl.children];
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      dots.forEach(d=>d.classList.remove('active'));
+      dotsEl.querySelector(`button[data-t="${e.target.id}"]`).classList.add('active');
+    }
+  });
+}, {rootMargin:'-50% 0px -50% 0px', threshold:0});
+[...tiersEl.children].forEach(s=>io.observe(s));
+
+
+
+/* ---------- Footer: Play again ---------- */
+document.getElementById('play-again').addEventListener('click', e => { e.preventDefault(); landing.scrollIntoView({behavior:'smooth'}); });
+</script>
+</body>
+</html>
