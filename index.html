@@ -141,65 +141,66 @@ const TIERS = [
 
   { num:8, color:'#d9735a', label:'Excellent', title:'Beautifully made, and I enjoyed every step of the way.',
     games:[ 
-      {name:'Bloodborne', rating:8, hours:90, cover:'covers/bloodborne.jpg'},
       {name:'Dark Souls III', rating:8, hours:95, cover:'covers/ds3.jpg'},
       {name:'Sekiro', rating:8, hours:75, cover:'covers/sekiro.jpg'},
+      {name:'Bloodborne', rating:8, hours:90, cover:'covers/bloodborne.jpg'},
       {name:'Hitman: World of Assassination', rating:8, hours:350, cover:'covers/hitman_woa.jpg'},
       {name:'Rainbow Six Siege', rating:8, hours:418, cover:'covers/r6.jpg'}
      ] },
 
   { num:7, color:'#5fa8c9', label:'Very Good', title:'A genuinely satisfying experience, just a few rough edges short of greatness.',
     games:[
-      {name:'Alien Isolation', rating:7, hours:25, cover:'covers/alien_isolation.jpg'},
       {name:'Death Stranding', rating:7, hours:70, cover:'covers/death_stranding.jpg'},
+      {name:'Alien Isolation', rating:7, hours:25, cover:'covers/alien_isolation.jpg'},
+      {name:'GTA V<br>(story mode)', rating:7, hours:35, cover:'covers/gta5.jpg'},
       {name:'Ghost Recon Wildlands', rating:7, hours:55, cover:'covers/gr_wildlands.jpg'},
-      {name:'Ghost Recon Breakpoint', rating:7, hours:100, cover:'covers/gr_breakpoint.jpg'},
-      {name:'GTA V<br>(story mode)', rating:7, hours:35, cover:'covers/gta5.jpg'}
+      {name:'Ghost Recon Breakpoint', rating:7, hours:100, cover:'covers/gr_breakpoint.jpg'}
     ] },
 
   { num:6, color:'#5fb3b0', label:'Good', title:'A step above mediocre, with enough going for it to stand out a little.',
     games:[
       {name:'Ghost of Tsushima', rating:6, hours:46, cover:'covers/ghost_of_tsushima.jpg'},
       {name:'Resident Evil 2', rating:6, hours:15, cover:'covers/re2.jpg'},
+      {name:'Mass Effect 2', rating:6, hours:30, cover:'covers/mass_effect2.png'},
       {name:'Mafia', rating:6, hours:11, cover:'covers/mafia1.jpeg'},
+      {name:'Mass Effect', rating:6, hours:25, cover:'covers/mass_effect1.jpg'},
       {name:'Darkwood', rating:6, hours:14, progress:95, cover:'covers/darkwood.jpg'},
       {name:'Lego Batman (PS2)', rating:6, cover:'covers/lego_batman.jpg'},
-      {name:'Fortnite<br>(only seasons 1-3)', rating:6, cover:'covers/fortnite.jpg'},
-      {name:'Mass Effect', rating:6, hours:25, cover:'covers/mass_effect1.jpg'}
+      {name:'Fortnite<br>(only seasons 1-3)', rating:6, cover:'covers/fortnite.jpg'}
     ] },
 
   { num:5, color:'#8f8fae', label:'Decent', title:'A mediocre experience, not good but not bad either.',
     games:[
       {name:'Resident Evil Village', rating:5, hours:9, cover:'covers/re8.jpg'},
-      {name:'Resident Evil 3', rating:5, hours:7, cover:'covers/re3.jpg'},
       {name:'Dark Souls', rating:5, hours:40, cover:'covers/ds1.jpg'},
       {name:'Dark Souls II', rating:5, hours:50, cover:'covers/ds2.jpg'},
-      {name:'Kingdom Come Deliverance', rating:5, hours:71, progress:50, cover:'covers/kingdom_come.jpg'},
+      {name:'Resident Evil 3', rating:5, hours:7, cover:'covers/re3.jpg'},
+      {name:'Shadow of the Tomb Raider', rating:5, hours:20, cover:'covers/tb_shadow.jpg'},
       {name:'Sifu', rating:5, hours:20, cover:'covers/sifu.jpg'},
-      {name:'Shadow of the Tomb Raider', rating:5, hours:20, cover:'covers/tb_shadow.jpg'}
+      {name:'Kingdom Come Deliverance', rating:5, hours:71, progress:50, cover:'covers/kingdom_come.jpg'}
     ] },
 
   { num:4, color:'#7a7a95', label:'Underwhelming', title:'Shallow and unremarkable, but the gameplay is fun.',
     games:[
-      {name:'Rocket League', rating:4, hours:56, cover:'covers/rocket_league.jpg'},
-      {name:'Enlisted', rating:4, hours:70, cover:'covers/enlisted.jpg'},
-      {name:'F1 2019', rating:4, hours:455, cover:'covers/f1_2019.jpeg'},
-      {name:'World of Warships', rating:4, hours:250, cover:'covers/wow.jpeg'},
-      {name:'GTA V (online)', rating:4, hours:375, cover:'covers/gta5.jpg'},
       {name:'War Thunder', rating:4, hours:746, cover:'covers/war_thunder.jpg'},
-      {name:'Phasmophobia', rating:4, hours:30, cover:'covers/phasmophobia.jpg'},
-      {name:'World of Tanks', rating:4, hours:285, cover:'covers/wot.jpg'},
-      {name:'Snowrunner', rating:4, hours:280, cover:'covers/snowrunner.jpg'},
       {name:'Warframe', rating:4, hours:145, cover:'covers/warframe.jpg'},
+      {name:'Snowrunner', rating:4, hours:280, cover:'covers/snowrunner.jpg'},
+      {name:'World of Warships', rating:4, hours:250, cover:'covers/wow.jpeg'},
+      {name:'Phasmophobia', rating:4, hours:30, cover:'covers/phasmophobia.jpg'},
+      {name:'F1 2019', rating:4, hours:455, cover:'covers/f1_2019.jpeg'},
+      {name:'Enlisted', rating:4, hours:70, cover:'covers/enlisted.jpg'},
+      {name:'GTA V (online)', rating:4, hours:375, cover:'covers/gta5.jpg'},
+      {name:'Rocket League', rating:4, hours:56, cover:'covers/rocket_league.jpg'},
+      {name:'World of Tanks', rating:4, hours:285, cover:'covers/wot.jpg'}
     ] },
 
   { num:3, color:'#6b6b78', label:"Didn't Like It", title:'Promising ideas that lost their way or never quite came together.',
     games:[
-      {name:'Mafia II', rating:3, hours:10, cover:'covers/mafia2.jpg'},
+      {name:'Uncharted 4', rating:3, hours:16, cover:'covers/uncharted4.jpg'},
       {name:'Firewatch', rating:3, hours:4, cover:'covers/firewatch.jpg'},
+      {name:'Mafia II', rating:3, hours:10, cover:'covers/mafia2.jpg'},
       {name:'Mafia III', rating:3, hours:13, progress:25, cover:'covers/mafia3.jpg'},
-      {name:"Demon's Souls", rating:3, hours:26, cover:'covers/demon_souls.jpg'},
-      {name:'Uncharted 4', rating:3, hours:16, cover:'covers/uncharted4.jpg'}
+      {name:"Demon's Souls", rating:3, hours:26, cover:'covers/demon_souls.jpg'}
     ] },
 
   { num:2, color:'#4f5a68', label:'Poor', title:'An experience that felt tedious or pointless more often than not.',
