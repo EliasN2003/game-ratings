@@ -51,6 +51,7 @@
   @media (prefers-reduced-motion:reduce){.scroll-cue::after{animation:none;}}
 
   .rail{display:grid; grid-template-columns:repeat(auto-fill, 198px); gap:1.6rem; margin-top:3rem; padding-bottom:1rem; position:relative; z-index:2; align-items:start;}
+  .empty-tier{font-family:'Lora', serif; font-style:italic; font-size:1.05rem; color:var(--tc); opacity:.8; margin-top:3rem; padding-top:1.6rem; border-top:1px solid rgba(255,255,255,.08); max-width:420px; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
   .card{width:198px; position:relative; z-index:1;}
   .cover{width:198px; height:198px; border-radius:3px; background:linear-gradient(155deg, #181c24, #262b34); border:1px solid rgba(255,255,255,.08); overflow:hidden; position:relative; transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease, z-index .35s;}
   .cover:hover{transform:translateY(-6px); box-shadow:0 14px 34px -10px var(--cs), 0 0 0 1px var(--tc); border-color:var(--tc); z-index:5;}
@@ -305,13 +306,15 @@ TIERS.forEach((t) => {
       </div>
     </div>`).join('');
 
+  const body = t.games.length ? `<div class="rail">${cards}</div>` : `<p class="empty-tier">Nothing here — yet.</p>`;
+
   section.innerHTML = `
     <div class="ghost-num tier-display">${t.num}</div>
     <div class="tier-head">
       <div class="tier-num tier-display">${t.label}</div>
       <div class="tier-title">${t.title}</div>
     </div>
-    <div class="rail">${cards}</div>`;
+    ${body}`;
   tiersEl.appendChild(section);
 
   const dot = document.createElement('button');
