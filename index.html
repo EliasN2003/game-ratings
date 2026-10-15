@@ -16,7 +16,6 @@
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-snap-type:y proximity; scroll-padding-top:env(safe-area-inset-top,0px);}
   body{background:var(--bg); color:var(--text); font-family:'Work Sans', sans-serif; overflow-x:hidden;}
-  html, body{overflow-anchor:none;}
   .tier-display{font-family:'Fraunces', serif;}
 
   /* Scrollbar removal */
@@ -116,6 +115,7 @@
 <script>
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   document.documentElement.style.scrollSnapType = 'none';
+  document.documentElement.style.overflowAnchor = 'none';
 /* ============ EDIT THIS TO ADD / CHANGE GAMES ============
    Each tier needs: num, color (hex), title, desc, games[]
    Each game needs: name, rating, hours. cover is optional (image path/url);
@@ -348,7 +348,9 @@ document.getElementById('play-again').addEventListener('click', e => { e.prevent
 function resetScroll(){
   window.scrollTo(0, 0);
   document.documentElement.style.scrollSnapType = '';
+  document.documentElement.style.overflowAnchor = '';
 }
+
 requestAnimationFrame(resetScroll);
 window.addEventListener('load', resetScroll);
 window.addEventListener('pageshow', e => { if (e.persisted) resetScroll(); });
