@@ -73,7 +73,7 @@
   .end-link:hover span{transform:translateY(-3px);}
 
   @media (max-width:640px){
-    section.tier{min-height:100svh; padding:5rem 6vw 3rem; justify-content:flex-start;}
+    section.tier{min-height:98svh; padding:5rem 6vw 3rem; justify-content:flex-start;}
     section.landing{min-height:100svh; justify-content:center;}
 
     .ghost-num{
@@ -83,6 +83,11 @@
     font-size:30vw;
     }
     
+    /* Hide that one line on empty tiers to prevent overlap with the ghost number */
+    .empty-tier {
+      border-top: none;
+    }
+
     nav.dots{
     top:auto;
     right:auto;
