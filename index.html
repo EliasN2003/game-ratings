@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Lora:ital,wght@1,400;1,500;1,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d0f13'/%3E%3Cpath d='M16 6l3 7.5 8 .7-6.1 5.3L22.8 27 16 22.6 9.2 27l1.9-7.5L5 14.2l8-.7z' fill='%23f3c969'/%3E%3C/svg%3E">
+
 <style>
   :root{
     --bg:#0d0f13; --bg-raise:#15181e; --text:#ece8e0; --text-dim:#8d9098;
@@ -45,7 +46,7 @@
   .landing-stats{margin-top:1.1rem; font-size:.95rem; letter-spacing:.04em; color:var(--text-dim);}
   .landing-stats b{color:var(--text); font-weight:500;}
   .scroll-cue{position:absolute; left:6vw; bottom:2rem; display:flex; flex-direction:column; align-items:flex-start; gap:.6rem; font-size:.72rem; letter-spacing:.18em; text-transform:uppercase; color:var(--text-dim); opacity:.75; pointer-events:none;}
-  .scroll-cue::after{content:''; width:1px; height:34px; background:linear-gradient(to bottom, var(--text-dim), transparent); transform-origin:top; animation:cue 2.4s ease-in-out infinite;}
+  .scroll-cue::after{content:""; width:1px; height:34px; background:linear-gradient(to bottom, var(--text-dim), transparent); transform-origin:top; animation:cue 2.4s ease-in-out infinite;}
   @keyframes cue{0%,100%{transform:scaleY(.4); opacity:.4;} 50%{transform:scaleY(1); opacity:1;}}
   @media (prefers-reduced-motion:reduce){.scroll-cue::after{animation:none;}}
 
@@ -72,6 +73,153 @@
   .end-link:hover{color:var(--text); opacity:1;}
   .end-link:hover span{transform:translateY(-3px);}
 
+
+  /* ---------- Game Thoughts Modal Refined ---------- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(13, 15, 19, 0.8);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 6vw;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease, backdrop-filter 0.35s ease;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .modal-card {
+    width: min(100%, 720px);
+    background: var(--bg-raise);
+    border: 1px solid var(--tc, rgba(255,255,255,0.1));
+    border-radius: 6px;
+    padding: 3rem 3rem 2.8rem 3rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -15px rgba(0,0,0,0.7), 0 0 0 1px var(--tc, transparent);
+    
+    transform: scale(0.93) translateY(18px);
+    opacity: 0;
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+  }
+  .modal-overlay.active .modal-card {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+
+  /* Staggered Content Cascade Animation */
+  .modal-header-row, .modal-body {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .modal-overlay.active .modal-header-row {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.1s;
+  }
+  .modal-overlay.active .modal-body {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.16s;
+  }
+
+  /* Header Row layout: Title/Meta left, Rating Badge right */
+  .modal-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-title-area {
+    flex: 1;
+  }
+
+  .modal-title {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+  }
+
+  .modal-meta {
+    font-size: 0.88rem;
+    color: var(--tc); /* Matches the tier's accent color */
+    font-weight: 600; /* Makes it bolder */
+    letter-spacing: 0.04em;
+  }
+  .modal-meta .progress-text {
+    color: var(--tc);
+    font-weight: 600;
+  }
+
+  /* Tall, thin rating badge matching modal background */
+  .modal-rating-badge {
+    background: var(--bg);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 0.6rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+  }
+  
+  .modal-rating-num {
+    font-family: 'Fraunces', serif;
+    font-size: 1.8rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--tc);
+    letter-spacing: -0.03em;
+  }
+
+  .modal-rating-star {
+    font-size: 0.75rem;
+    color: #f3c969;
+    margin-top: 0.25rem;
+  }
+
+  .modal-body {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding-top: 1.5rem;
+    margin-top: 1rem;
+  }
+  
+  .modal-thoughts {
+    font-family: 'Work Sans', sans-serif;
+    font-style: normal;
+    font-size: 1.02rem;
+    line-height: 1.7;
+    color: var(--text);
+    opacity: 0.92;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  .cover {
+    cursor: pointer;
+  }
+
   @media (max-width:640px){
     section.tier{min-height:98svh; padding:5rem 6vw 3rem; justify-content:flex-start;}
     section.landing{min-height:100svh; justify-content:center;}
@@ -81,6 +229,7 @@
     right:4vw;
     transform:none;
     font-size:30vw;
+    opacity: 0.1;
     }
     
     /* Hide that one line on empty tiers to prevent overlap with the ghost number */
@@ -102,8 +251,28 @@
     .site-end{scroll-snap-align:none;}
 
     .cover:hover{transform:none; box-shadow:none; border-color:rgba(255,255,255,.08);}
-  }
 
+    /* ---------- Mobile Modal Layout Tweaks ---------- */
+    .modal-card {
+      padding: 0.9rem 1rem 0.8rem 1rem;
+    }
+
+    .modal-header-row {
+      gap: 0.25rem;
+      margin-bottom: 0;
+    }
+
+    .modal-body {
+      padding-top: 0.35rem;
+      margin-top: .7rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-thoughts {
+      font-size: 0.9rem;
+      line-height: 1.2;
+    }
+  }
 
 </style>
 </head>
@@ -117,107 +286,222 @@
   <a class="end-link" id="play-again" href="#home">Play again <span>↑</span></a>
 </footer>
 
+<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true">
+  <div class="modal-card" id="modalCard">
+    
+    <div class="modal-header-row">
+      <div class="modal-title-area">
+        <h2 class="modal-title" id="modalTitle"></h2>
+        <div class="modal-meta" id="modalMeta"></div>
+      </div>
+      <div class="modal-rating-badge" id="modalRatingBadge">
+        <span class="modal-rating-num" id="modalRatingNum"></span>
+        <span class="modal-rating-star">★</span>
+      </div>
+    </div>
+
+    <div class="modal-body">
+      <p class="modal-thoughts" id="modalThoughts"></p>
+    </div>
+    
+  </div>
+</div>
+
 <script>
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   document.documentElement.style.scrollSnapType = 'none';
-/* ============ EDIT THIS TO ADD / CHANGE GAMES ============
-   Each tier needs: num, color (hex), title, desc, games[]
-   Each game needs: name, rating, hours. cover is optional (image path/url);
-   leave it out and the name will show as a text placeholder card.
-   progress is optional (0-100) - add it for a game you haven't finished yet;
-   it shows as a small "% " tag next to the hours. Omit it, or set it to 100, for finished games.
-   The landing page counts games and hours from this list automatically.
-============================================================ */
+
 const TIERS = [
   { num:10, color:'#f3c969', label:'Masterpiece', title:'Some games end. These changed me a little, and stayed.',
     games:[
-      {name:'Elden Ring', rating:10, hours:300, cover:'covers/elden_ring.jpg'},
-      {name:'Nier Replicant ver.1.22474487139', rating:10, hours:45, cover:'covers/nier_replicant.jpg'},
-      {name:"NieR: Automata Game of the YoRHa Edition", rating:10, hours:38, cover:"covers/nier_automata.jpg"},
-      {name:'Red Dead Redemption II', rating:10, hours:140, cover:'covers/red_dead_2.jpg'},
-      {name:'Resident Evil 4', rating:10, hours:30, cover:'covers/re4.jpg'},
-      {name:'Resident Evil Requiem', rating:10, hours:24, cover:'covers/re9.jpg'}
+      {name:'Elden Ring', rating:10, hours:300, cover:'covers/elden_ring.jpg',
+        thoughts:"Elden Ring is my favorite game of all time. It was the first Souls game I ever played and it's the one that did everything perfectly. I loved its massive scale and its clever level design that provides an amazing exploration experience with zero handholding and a lot of hidden, but not tedious-to-find, dungeons and caves. The story is very convoluted to the point where you need a YouTube video to help you understand even the basics, but you don't need to understand the story to experience the great journey through the Lands Between. One thing that Elden Ring does great is that it removes all the tedious aspects of older Souls titles like the long runbacks to boss arenas by having more bonfires. That allows for more or tougher enemies to be placed in the area before the boss and also for the boss itself to be tougher and more aggressive, because every time you respawn you don't have to run through large groups of enemies to get to it again, saving time and health potions. Finally, the gameplay, although very challenging throughout the game, is perfectly fair because every enemy and boss attack in the game is dodgeable, meaning you can complete the game without taking a single hit if you learn the attacks well enough."},
+
+      {name:'Nier Replicant ver.1.22474487139', rating:10, hours:45, cover:'covers/nier_replicant.jpg',
+        thoughts:"NieR Replicant is my favorite story game alongside NieR:Automata. Its incredible story is slowly revealed with each playthrough, providing you with more information about backstories and details that you, as the protagonist, are unaware of in the beginning. By the time you complete the fifth and final playthrough, your perspective has shifted completely and you're contemplating everything. The director’s words, roughly, were: \"People do not need to be crazy or evil to commit atrocities—they just have to genuinely believe they are right\" which sums up the game’s philosophy well. All the characters are really well written and the music fits the mostly peaceful atmosphere well."},
+
+      {name:"NieR: Automata Game of the YoRHa Edition", rating:10, hours:38, cover:"covers/nier_automata.jpg",
+        thoughts:"NieR:Automata is my favorite story game alongside NieR Replicant. The story is amazing, and as in Replicant, you piece it together with every playthrough, experiencing different parts of the plot through the eyes of different characters. It also tackles deep philosophical themes such as existentialism and nihilism. Finally, the music is emotional and perfectly tailored to the story."},
+
+      {name:'Red Dead Redemption II', rating:10, hours:140, cover:'covers/red_dead_2.jpg',
+        thoughts:"Red Dead Redemption 2 is the greatest open-world story game I've ever played. It combines a massive map and incredibly detailed exploration with plenty of side quests, hidden treasures, and points of interest. The world feels alive and immerses you completely when exploring and especially during the long main story. It plays very smoothly and is well-crafted with so many mechanics and so much realism that it doesn't feel limiting or casual but rather detailed and satisfying. Its graphics are very realistic and refined, and you stop noticing the 30 FPS after a few hours. The voice acting is excellent and every character's personality really shines through."},
+      
+      {name:'Resident Evil 4', rating:10, hours:30, cover:'covers/re4.jpg',
+        thoughts:"Resident Evil 4 has one of the longest and best stories in the franchise, with good pacing that keeps you invested throughout its 20 hours of action-heavy survival horror. The game looks beautiful with many unique sections, especially the castle area, and the puzzles are intuitive and well-placed. One of my favorite things about it is the companion mechanic: in certain areas, Ashley or Luis accompanies and assists you in puzzle-solving and fighting the enemies you encounter. Finally, the characters' personalities and voice acting are superb."},
+
+      {name:'Resident Evil Requiem', rating:10, hours:24, cover:'covers/re9.jpg',
+        thoughts:"Resident Evil Requiem balances a truly horrifying atmosphere and action-packed sequences between its two protagonists, giving us the best of both worlds, unlike other Resident Evil games that do both at the same time with half the intensity. Its story is excellent, tracing back to almost the beginning of the franchise and delivering deep and consistent lore across multiple games. Most of its beauty comes from the top-notch graphics in its cutscenes and environment. The final piece of the puzzle that makes this game an incredible experience is the perfect voice acting that beautifully captures the characters' emotions."}
     ] },
 
   { num:9, color:'#e8935a', label:'Outstanding', title:'Games that left a warm glow long after I put the controller down.',
     games:[
-      {name:'Disco Elysium', rating:9, hours:30,cover:'covers/disco_elysium.jpg'}
+      {name:'Disco Elysium', rating:9, hours:30,cover:'covers/disco_elysium.jpg',
+        thoughts:"Disco Elysium features a great, detailed story in which you have to solve a murder case and by doing so you uncover the truth about the events. Playing this game feels like reading a book because in order to uncover clues, you have to talk to people to find out what they know and pass certain skill checks to push them for more information, which makes for a unique gameplay experience. It also offers a fair amount of replayability which is due to its skill-point system. This allows you to be good at different aspects of yourself, like your intelligence, and thus leaves room for additional playthroughs where you can instead focus on strength and end up seeing the story unfold slightly differently. The music is good and it fits the mysterious atmosphere well. Finally, all the characters have their own unique personalities, and the voice acting is amazing."}
     ] },
 
   { num:8, color:'#d9735a', label:'Excellent', title:'Beautifully made, and I enjoyed every step of the way.',
     games:[ 
-      {name:'Dark Souls III', rating:8, hours:95, cover:'covers/ds3.jpg'},
-      {name:'Sekiro', rating:8, hours:75, cover:'covers/sekiro.jpg'},
-      {name:'Bloodborne', rating:8, hours:90, cover:'covers/bloodborne.jpg'},
-      {name:'Death Stranding', rating:8, hours:60, cover:'covers/death_stranding.jpg'},
-      {name:'Hitman: World of Assassination', rating:8, hours:350, cover:'covers/hitman_woa.jpg'},
-      {name:'Rainbow Six Siege', rating:8, hours:418, cover:'covers/r6.jpg'}
+      {name:'Dark Souls III', rating:8, hours:95, cover:'covers/ds3.jpg',
+        thoughts:"Dark Souls 3 is perfect if you want the closest you can get to Elden Ring. Visually, the game is decent but it more than makes up for it with its solid gameplay that retains the original Souls recipe, but with vastly improved enemy, boss, and level design compared to earlier Souls titles."},
+
+      {name:'Sekiro', rating:8, hours:75, cover:'covers/sekiro.jpg',
+        thoughts:"Sekiro has the greatest swordplay I have ever experienced in a video game. The combat is very fast-paced and requires you to make split-second decisions to parry your opponent's attacks and then hit back before they can recover. Its katanas and world design are the icing on the cake because I am very fond of Japanese culture."},
+
+      {name:'Bloodborne', rating:8, hours:90, cover:'covers/bloodborne.jpg',
+        thoughts:"Bloodborne's grotesque atmosphere sets it apart from other Souls games. Its gameplay mechanics such as rallying and parrying with a gun, instead of the usual sword, make for a unique experience. Every boss fight is elevated by the amazing classical-style soundtrack it features."},
+
+      {name:'Death Stranding', rating:8, hours:60, cover:'covers/death_stranding.jpg',
+        thoughts:"Death Stranding immediately draws you into its world with its long cutscenes and initial world-building. Its story is very complicated with a lot of information to learn, leaving you with many questions throughout your playthrough and very likely after finishing it too. Walking around the map is simple, but it feels meaningful because you have to avoid obstacles and enemies and cross harsh terrain. One of the biggest highlights of the game is the photorealistic cutscenes that are long and frequent, essentially serving as a reward for your difficult travels. My only complaint is that the game could have used slightly harsher terrain or more frequent opportunities for overcoming obstacles and other non-enemy hazards."},
+
+      {name:'Hitman: World of Assassination', rating:8, hours:350, cover:'covers/hitman_woa.jpg',
+        thoughts:"The Hitman: World of Assassination trilogy holds a special place in my heart due to its stealth concept of an assassin taking out high-profile targets without leaving a trace. Its strongest aspect is the amount of content, with 20 detailed maps ranging from small to huge in scale, as well as many more maps and missions separate from the main campaign in DLCs or side missions. On top of that, every map has multiple ways to kill your targets or complete other challenges, which maximizes replayability. Finally, the realistic NPC and enemy behavior provides a fair challenge that keeps you entertained, requiring you to use different strategies every time you play."},
+
+      {name:'Rainbow Six Siege', rating:8, hours:418, cover:'covers/r6.jpg',
+        thoughts:"Rainbow Six Siege is the most strategic FPS there is because knowing the game well and using your gadgets correctly can give you the advantage over opponents with better aim. Featuring dozens of operators, each with their own unique gadget, the game allows for countless strategies and creative opportunities."}
      ] },
 
   { num:7, color:'#5fa8c9', label:'Very Good', title:'A genuinely satisfying experience, just a few rough edges short of greatness.',
     games:[
-      {name:'Alien Isolation', rating:7, hours:25, cover:'covers/alien_isolation.jpg'},
-      {name:'GTA V<br>(story mode)', rating:7, hours:35, cover:'covers/gta5.jpg'},
-      {name:'Ghost Recon Wildlands', rating:7, hours:55, cover:'covers/gr_wildlands.jpg'},
-      {name:'Ghost Recon Breakpoint', rating:7, hours:100, cover:'covers/gr_breakpoint.jpg'},
-      {name:'Heavy Rain', rating:7, hours:9, cover:'covers/heavy_rain.jpg'}
+      {name:'Alien Isolation', rating:7, hours:25, cover:'covers/alien_isolation.jpg',
+        thoughts:"Alien Isolation is one of the scariest experiences I've had in a horror game. Its stressful atmosphere keeps you tense, constantly scanning for movement and sounds that might indicate enemy presence. The xenomorph is a great antagonist, forcing you to take your time and play carefully because if it hears you, there's no running from it. Its environment is well-designed, and the gameplay is clean although it tends to get a little repetitive after a while. Unfortunately, the way I would describe this game is that it is a 15-hour game stretched to around 25 hours. There are a lot of simple fetch missions and many sneaking-from-androids sections that serve as padding for the game's duration."},
+
+      {name:'GTA V<br>(story mode)', rating:7, hours:35, cover:'covers/gta5.jpg',
+        thoughts:"GTA V features a great, long story, good graphics, and excellent dialogue and voice acting that give depth to every character. Its large map and many side missions support the main story well and provide extra hours of content. Finally, the driving is fun, and the overall gameplay is very smooth."},
+
+      {name:'Ghost Recon Wildlands', rating:7, hours:55, cover:'covers/gr_wildlands.jpg',
+        thoughts:"Ghost Recon Wildlands belongs to the Ghost Recon franchise, which I adore because of its concept and execution. Wildlands combines open-world freedom (you can take on main and side missions whenever you want) with stealthy clearing of enemy bases. Its story builds up well as you play, providing backstories for the cartel bosses before you fight them. Gradually wiping out enemies and area bosses until you clear the whole map and eliminate the leader makes it feel like your actions matter in taking down the cartel and they're not just part of a checklist. The only thing that let me down is the enemy AI that can sometimes spot you much more easily than it should and raise the alarm instantaneously. "},
+
+      {name:'Ghost Recon Breakpoint', rating:7, hours:100, cover:'covers/gr_breakpoint.jpg',
+        thoughts:"Ghost Recon Breakpoint belongs to the Ghost Recon franchise, which I adore because of its concept and execution. Breakpoint follows in Wildlands' footsteps by keeping the great open-world design and giving you the same freedom to plan and execute your missions. A big improvement is that the AI behavior is more realistic, so enemies don't sound the alarm as soon as they catch a glimpse of you. Unfortunately, the same cannot be said of its story. Fighting generic high-tech soldiers and drones doesn’t feel as meaningful as fighting cartel members and their leaders while learning about their crimes from documents you find."},
+
+      {name:'Heavy Rain', rating:7, hours:9, cover:'covers/heavy_rain.jpg',
+        thoughts:"Heavy Rain has a solid story that keeps you invested until the end. The characters are interesting and the plot twist when you uncover the killer gives the ending a nice touch. Playing it can feel a little stale because your only real gameplay is manually opening doors and drawers, and performing quick-time events. Although it's close, it's not something that feels like a pure AAA experience."}
     ] },
 
   { num:6, color:'#5fb3b0', label:'Good', title:'A step above mediocre, with enough going for it to stand out a little.',
     games:[
-      {name:'Ghost of Tsushima', rating:6, hours:46, cover:'covers/ghost_of_tsushima.jpg'},
-      {name:'Resident Evil 2', rating:6, hours:15, cover:'covers/re2.jpg'},
-      {name:'Sniper Elite 4<br>(custom difficulty only)', rating:6, hours:28, cover:'covers/sniper_elite_4.jpg'},
-      {name:'Mass Effect 2', rating:6, hours:30, cover:'covers/mass_effect2.png'},
-      {name:'Silent Hill 2 (2001)', rating:6, hours:8, cover:'covers/sh2_original.jpg'},
-      {name:'Soma', rating:6, hours:9, cover:'covers/soma.jpg'},
-      {name:'Mafia', rating:6, hours:11, cover:'covers/mafia1.jpeg'},
-      {name:'Mass Effect', rating:6, hours:25, cover:'covers/mass_effect1.jpg'},
-      {name:'Darkwood', rating:6, hours:14, progress:95, cover:'covers/darkwood.jpg'},
-      {name:'Lego Batman (PS2)', rating:6, cover:'covers/lego_batman.jpg'},
-      {name:'Fortnite<br>(only seasons 1-3)', rating:6, cover:'covers/fortnite.jpg'}
+      {name:'Ghost of Tsushima', rating:6, hours:46, cover:'covers/ghost_of_tsushima.jpg',
+        thoughts:"Ghost of Tsushima didn't immerse me that much in its story, but most of the game looked beautiful. One thing that I have never seen before in a game is the intuitive guidance system: with a swipe of the touchpad, the wind blows showing you the direction you need to travel. Its large map gives you the freedom to explore and attack enemy bases that you find, but after a while it can get a little boring, especially the other activities like using hot springs and finding fox dens. Overall, the gameplay is smooth, closely resembling Sekiro but with more moves, abilities and perks that give the combat a more Western feel than the Souls games."},
+
+      {name:'Resident Evil 2', rating:6, hours:15, cover:'covers/re2.jpg',
+        thoughts:"Resident Evil 2 follows the classic Resident Evil formula that the old games started with, featuring good level design for exploration and combat. Its puzzles are clever and satisfying to solve. Mr. X is also a well-designed and stressful antagonist, chasing after you in certain parts of the game, thus emphasizing the survival-horror aspect of the franchise. Overall, its story is great at keeping you entertained and the excellent voice acting helps you get more attached to the characters."},
+
+      {name:'Sniper Elite 4<br>(custom difficulty only)', rating:6, hours:28, cover:'covers/sniper_elite_4.jpg',
+        thoughts:"Sniper Elite 4 is one of the few sniping games out there that are worth your time but only under specific conditions. On its default settings, the game is unplayable because of the terribly unrealistic bullet physics that completely ruin the shooting experience in a game made for exactly that. Thankfully, using the custom settings to disable some of the physics, such as the wind, helps reach a much more realistic level of ballistics, which then makes the game fun. My favorite part of this game is the concept I like to call \"loud sniping\". Unlike in Ghost Recon, where you use a suppressor to avoid alerting the enemies that you're there, in Sniper Elite the enemies, for the most part, are aware of your presence but unable to pinpoint your location because you're constantly repositioning and masking the sound of your shots. Its beautiful, big maps help a lot by providing you with plenty of room you can use to eliminate your targets. Finally, the story is underwhelming with decent-at-best voice acting."},
+
+      {name:'Mass Effect 2', rating:6, hours:30, cover:'covers/mass_effect2.png',
+        thoughts:"Mass Effect 2 keeps the space setting I really like, and my opinion hasn’t changed much from the first game: it’s fun. The final mission is great, because the choices you’ve made along the way truly matter. The Normandy is also more useful this time, since you can now view upgrades and other things instead of only exploring it to talk to your crewmates. Talking to your crewmates still matters, though, because you learn more about them, and the dialogue and backstories are well-written. On the downside, the main missions are still too similar to each other, and the constant shooting eventually feels stale. Most of the side quests aren’t very important either, and they’re just as repetitive. Finally, the voice acting is good and the characters have great personalities."},
+
+      {name:'Silent Hill 2 (2001)', rating:6, hours:8, cover:'covers/sh2_original.jpg',
+        thoughts:"Silent Hill 2 (2001) has one of the most horrifying atmospheres I've ever played through in a video game. This is largely due to its excellent sound design, which makes you uncomfortable and keeps you tense throughout the whole experience. Its puzzles are cleverly designed and they are entertaining to solve. The graphics, although old and a little dated, are beautiful, and every room and area has its own unsettling touch. Finally, the story is pretty good, but it is a little unclear and it is not until you search online after finishing the game, that you get the full picture and the extra information makes the story even better."},
+
+      {name:'Soma', rating:6, hours:9, cover:'covers/soma.jpg',
+        thoughts:"Soma is a good horror game that isn’t very scary, but that doesn’t stop it from having a solid story. Although simple, its story hints at a deep philosophical question that, in my interpretation, asks what truly makes us the \"real\" humans compared to a simulated version of ourselves. Its good-looking areas make it pleasant to explore, and the satisfying mechanics for opening doors and handling items do a great job of keeping you immersed."},
+
+      {name:'Mafia', rating:6, hours:11, cover:'covers/mafia1.jpeg',
+        thoughts:"Mafia 1 is my favorite of the franchise, featuring an interesting story, great voice acting, and dialogue that feels like a Hollywood movie. The characters are very well portrayed, making each personality shine and feel realistic. My only complaint is that the shooting feels a little dated, but this doesn't hurt the experience."},
+
+      {name:'Mass Effect', rating:6, hours:25, cover:'covers/mass_effect1.jpg',
+        thoughts:"Mass Effect 1 is a good sci-fi story game that takes place in space, which I really like. Unfortunately, the story, although fun, didn’t interest me enough to rate it higher than 6/10. The main story missions are all fairly similar to each other, and there's just too much shooting that eventually gets boring. There are a lot of side quests, but most of them are not really important and they, too, are all similar. Finally, the voice acting is good and the characters' personalities are well-written."},
+
+      {name:'Darkwood', rating:6, hours:14, progress:95, cover:'covers/darkwood.jpg',
+        thoughts:"Darkwood is a fun survival-horror game with an unsettling atmosphere. It has no actual story except for the general idea that you need to get out of the forest. Its map is decently sized and makes exploration interesting and challenging. The first 10 hours of the game are great, fair, and creepy. After you escape from the initial area and reach the swamp, that's when the game goes downhill. It suddenly becomes much harder to the point that exploring turns tedious, and the whole chapter feels more like padding than an ending area. Unfortunately, this got so frustrating that I didn’t want to finish it, even though I was only a couple of hours from the ending."},
+
+      {name:'Lego Batman (PS2)', rating:6, cover:'covers/lego_batman.jpg',
+        thoughts:"Lego Batman was the first game I played on the PS2, which was my first console. I used to play it with my brother when we were still in primary school, so it brings back great nostalgia. Overall, the game has genuinely fun and well-designed gameplay with plenty of content and villains to beat."},
+
+      {name:'Fortnite<br>(only seasons 1-3)', rating:6, cover:'covers/fortnite.jpg',
+        thoughts:"Fortnite: Battle Royale started around 2017 and introduced a new and fun take on the battle royale genre. Its unique art style and graphics gave it a character of its own and combined with its creative gameplay, it was the most entertaining battle royale to play solo and with friends. Unfortunately, after 2018, the game started changing too much for my taste with more and more content being crammed into it. Eventually, it reached ridiculous levels of overly contrasted visuals, a heavily altered map, and faster, jerkier player movement, turning it into a game that looks more like a TikTok video than a video game."}
     ] },
 
   { num:5, color:'#8f8fae', label:'Decent', title:'A mediocre experience, not good but not bad either.',
     games:[
-      {name:'Resident Evil Village', rating:5, hours:9, cover:'covers/re8.jpg'},
-      {name:'Dark Souls', rating:5, hours:40, cover:'covers/ds1.jpg'},
-      {name:'Dark Souls II', rating:5, hours:50, cover:'covers/ds2.jpg'},
-      {name:'Resident Evil 3', rating:5, hours:7, cover:'covers/re3.jpg'},
-      {name:'Shadow of the Tomb Raider', rating:5, hours:20, cover:'covers/tb_shadow.jpg'},
-      {name:'Sifu', rating:5, hours:20, cover:'covers/sifu.jpg'},
-      {name:'Kingdom Come Deliverance', rating:5, hours:71, progress:50, cover:'covers/kingdom_come.jpg'}
+      {name:'Resident Evil Village', rating:5, hours:9, cover:'covers/re8.jpg',
+        thoughts:"Resident Evil Village features a great story in a unique setting. The map looks beautiful, especially in the castle, but some areas such as the swamp are not that interesting. Its gameplay uses the first-person style introduced in Resident Evil 7, and the enemies are monsters instead of the usual zombies, giving the franchise a refreshing feeling. One thing that I didn't like and that is also present in Resident Evil 7, is that you never get to learn more about Ethan or even see him, making it difficult to get attached to him. Finally, the voice acting is great and all the characters and their personalities are very well-written."},
+
+      {name:'Dark Souls', rating:5, hours:40, cover:'covers/ds1.jpg',
+       thoughts:"Dark Souls 1 is the first game in the trilogy and the one in which the Souls formula started solidifying after Demon's Souls started it. Unfortunately, the level design feels a little annoying because sometimes you find locked doors after exploring for some time, and you need to loop back all the way around simply to unlock them and gain a shortcut between two areas. Its gameplay is also tedious since the areas before the bosses are more difficult than the bosses themselves, which technically is backward and defeats the purpose of a boss."},
+
+      {name:'Dark Souls II', rating:5, hours:50, cover:'covers/ds2.jpg',
+        thoughts:"Dark Souls 2 is the second game in the trilogy, and unfortunately, its biggest flaw is tied to its core mechanic. The roll, which is the one thing the whole game is built around, is an upgradeable stat, and that makes no sense. On top of that, if you haven’t upgraded the stat enough, you can roll through an enemy’s attack and still get teleported back and impaled on its sword, which defeats the purpose of dodging in the first place. That is what breaks the game for me. As for everything else, my opinion is the same as for Dark Souls 1."},
+
+      {name:'Resident Evil 3', rating:5, hours:7, cover:'covers/re3.jpg',
+        thoughts:"Resident Evil 3 features more action-packed gameplay, more outdoor exploration, and more combat than Resident Evil 2, whose story takes place at the same time. One thing that disappointed me is that all boss fights with Nemesis, who shows up 4 times, end up feeling repetitive. His form changes and he becomes more mutated and bigger with every boss fight, going through 3 stages of mutation. All the stages are well-designed, but there was no need to fight the second stage twice in different locations. Also, at his final stage, he has become so big and mutated that he could destroy the whole lab, and easily wipe out the protagonist. Instead, he slowly swings one of his claws barely putting up a fight. This makes him the most underwhelming boss in the entire franchise, although the initial idea would have been great, with a few tweaks in the frequency of the fights and their quality. The game is short at around 6 hours with some content reportedly getting cut from the original (1999). Finally, the voice acting is great and the characters are well-written."},
+
+      {name:'Shadow of the Tomb Raider', rating:5, hours:20, cover:'covers/tb_shadow.jpg',
+        thoughts:"Shadow of the Tomb Raider is a fun adventure-story game. Its story is interesting to play through, and the areas you explore are beautiful, with realistic cutscenes and characters that feel alive. Finally, the puzzles feel intuitive and engaging."},
+
+      {name:'Sifu', rating:5, hours:20, cover:'covers/sifu.jpg',
+        thoughts:"Sifu has fast-paced, smooth combat that feels very satisfying when you're fighting. Every time you respawn, you age, and your goal is to learn each stage well enough to minimize your respawns and stay as young as possible so you can reach the end. This way, the game makes deaths leave their mark on you without making the gameplay feel overly punishing. Finally, the art style is beautiful, highlighting the game's unique character."},
+
+      {name:'Kingdom Come Deliverance', rating:5, hours:71, progress:50, cover:'covers/kingdom_come.jpg',
+        thoughts:"Kingdom Come Deliverance portrays the medieval setting and way of life very realistically. Its story didn't amaze me much, and its side quests are a little boring, and sometimes tedious to do. Because of the stale, emotionally flat cutscenes and mediocre voice acting, I stopped playing about halfway through and I might give it another chance at some point in the future. Finally, its combat is well-made, focusing on precise strikes and parries on the enemies, but when there are a lot of them it becomes almost impossible to avoid getting hit because they surround you easily. It's realistic but annoying."}
     ] },
 
   { num:4, color:'#7a7a95', label:'Underwhelming', title:'Shallow and unremarkable, but the gameplay is fun.',
     games:[
-      {name:'War Thunder', rating:4, hours:746, cover:'covers/war_thunder.jpg'},
-      {name:'Warframe', rating:4, hours:145, cover:'covers/warframe.jpg'},
-      {name:'Snowrunner', rating:4, hours:280, cover:'covers/snowrunner.jpg'},
-      {name:'World of Warships', rating:4, hours:250, cover:'covers/wow.jpeg'},
-      {name:'Phasmophobia', rating:4, hours:30, cover:'covers/phasmophobia.jpg'},
-      {name:'F1 2019', rating:4, hours:455, cover:'covers/f1_2019.jpeg'},
-      {name:'Enlisted', rating:4, hours:70, cover:'covers/enlisted.jpg'},
-      {name:'GTA V (online)', rating:4, hours:375, cover:'covers/gta5.jpg'},
-      {name:'Rocket League', rating:4, hours:56, cover:'covers/rocket_league.jpg'},
-      {name:'World of Tanks', rating:4, hours:285, cover:'covers/wot.jpg'}
+      {name:'War Thunder', rating:4, hours:746, cover:'covers/war_thunder.jpg',
+        thoughts:"War Thunder is my favorite tank game, combining a wide range of vehicles from many countries with great gameplay. The vehicles feel realistic to operate, and the maps provide a well-designed playground to fight on. My favorite thing about the gameplay is the accurate penetration simulation the game uses to calculate internal damage when a vehicle is hit. The most common player complaint is that the grind is too long, but I find it acceptable for a free-to-play game with this level of detail."},
+
+      {name:'Warframe', rating:4, hours:145, cover:'covers/warframe.jpg',
+        thoughts:"Warframe maintains a good balance between its story and engaging gameplay. Its deep sci-fi story has a lot of details and a ton of material to read up on to understand it, and is very well-written. As for the gameplay, the main story missions are interesting and make you want to play the whole game in one sitting. Anything outside the main story missions can quickly get boring because all the maps look very similar and the gameplay gets repetitive if you're doing side quests or other activities. Finally, its grind for new warframes can take an extremely long time if you don't buy any in-game currency, but that is understandable given the game's free-to-play nature."},
+
+      {name:'Snowrunner', rating:4, hours:280, cover:'covers/snowrunner.jpg',
+        thoughts:"Snowrunner is the best vehicle exploration game I've ever played. Its realistic truck physics give you a fair challenge when transporting cargo and going up slopes or crossing rough terrain. Upgrading your trucks feels earned because you have to find the upgrades out in the field instead of simply unlocking them after leveling up. Finally, the game's many maps are filled with main and side missions providing hundreds of hours of gameplay."},
+
+      {name:'World of Warships', rating:4, hours:250, cover:'covers/wow.jpeg',
+        thoughts:"World of Warships makes naval combat fun and engaging to play for hours. It features hundreds of ships, large maps, and realistic shell ballistics. Compared to War Thunder's naval battles, World of Warships simplifies the gameplay by using health bars instead of crew count for survivability, and by having much shorter battles."},
+
+      {name:'Phasmophobia', rating:4, hours:30, cover:'covers/phasmophobia.jpg',
+        thoughts:"Phasmophobia is the greatest ghost hunting game I've played. Its huge catalog of ghost types and each ghost's unique behavior make the gameplay feel realistic. Using multiple tools to gather clues and then determine the type of ghost you're dealing with is very satisfying. Finally, the maps are really well-designed and their creepy atmosphere immerses you."},
+
+      {name:'F1 2019', rating:4, hours:455, cover:'covers/f1_2019.jpeg',
+       thoughts:"F1 2019 is my favorite racing game because driving an F1 car is an amazing feeling, even virtually, and this game does a great job of portraying that sense of speed. All the tracks are faithful to the real ones and look beautiful in all weather conditions. Its career game mode is well-designed with a rewarding car upgrade system. The AI racers are intelligent and very fast in the higher difficulties. Finally, I respect this game because it's not afraid to make the gameplay harder in order to make it more realistic. For example, if you're driving with no assists it is fairly challenging to keep the car from spinning out in the low-speed corners."},
+
+      {name:'Enlisted', rating:4, hours:70, cover:'covers/enlisted.jpg',
+       thoughts:"Enlisted is my favorite WW2 shooter, with realistic, large-scale multiplayer battles. My favorite thing about this game is the variety of specialists you can use, such as engineers, snipers, AT gunners, medics, radio operators, and more. The maps are huge and allow you to execute strategies like flanking, entrenching and using vehicles. Finally, the game has a wide range of guns and each one can be customized with many attachments to suit your playstyle."},
+
+      {name:'GTA V (online)', rating:4, hours:375, cover:'covers/gta5.jpg',
+       thoughts:"The online mode for GTA V has a ton of side content and interesting heists to keep you occupied for hundreds of hours. Unfortunately, the vast majority of its playerbase is kids or childish adults who will fire missiles at you from their flying bikes just to feel something in their empty little pathetic lives, without getting anything in return. What disappoints me most is that all the weaponry and military vehicles you acquire have no real use in missions, and you can only roam around the map with them."},
+
+      {name:'Rocket League', rating:4, hours:56, cover:'covers/rocket_league.jpg',
+       thoughts:"Rocket League has the best car-football gameplay you can find. The clever mechanics such as boosting, wall driving and aerial shooting make the game challenging and unique. Unfortunately, its matchmaking is poorly balanced a lot of the time, giving one team an obvious advantage."},
+
+      {name:'World of Tanks', rating:4, hours:285, cover:'covers/wot.jpg',
+       thoughts:"World of Tanks has unique gameplay and mechanics that set it apart from other tank games. Unfortunately, that’s where its positives end, because the game is full of problems that hurt its quality. Unlocking tanks is very tedious because losing a battle rewards you with tiny amounts of experience. Another problem is credits: you sometimes end up in the negative, even after a win, since repairing your tank and replenishing ammunition cost a lot. Additionally, the tanks’ weak spots are very small and hard to hit from far away, so most players resort to “gold” ammunition, which costs more and has better penetration, giving the game a heavy pay-to-win feel. The armor and penetration system is also badly designed, because you have to aim only at the cupolas or lower plates, which is historically inaccurate and lame. All in all, this game is worse than War Thunder in every aspect."}
     ] },
 
-  { num:3, color:'#6b6b78', label:"Didn't Like It", title:'Promising ideas that lost their way or never quite came together.',
+  { num:3, color:'#6b6b78', label:"Didn't Like It", title:'Promising ideas that lost their way or never quite came together.', thoughts:"",
     games:[
-      {name:'Uncharted 4', rating:3, hours:16, cover:'covers/uncharted4.jpg'},
-      {name:'Firewatch', rating:3, hours:4, cover:'covers/firewatch.jpg'},
-      {name:'Mafia II', rating:3, hours:10, cover:'covers/mafia2.jpg'},
-      {name:'Mafia III', rating:3, hours:13, progress:25, cover:'covers/mafia3.jpg'},
-      {name:"Demon's Souls", rating:3, hours:26, cover:'covers/demon_souls.jpg'},
-      {name:'Limbo', rating:3, hours:3, cover:'covers/limbo.jpg'},
-      {name:'Inside', rating:3, hours:4, cover:'covers/inside.jpeg'}
+      {name:'Uncharted 4', rating:3, hours:16, cover:'covers/uncharted4.jpg',
+       thoughts:"Uncharted 4 has an interesting adventure story with well-written characters and really good voice acting that make you care about what happens to them. The parkour and climbing mechanics are also very nice, making traversal feel smooth and fun. Unfortunately, there’s way too much shooting, which keeps interrupting the story and ruins the immersion the rest of the game builds so well."},
+
+      {name:'Firewatch', rating:3, hours:4, cover:'covers/firewatch.jpg',
+       thoughts:"Firewatch is a beautiful game with great voice acting, and its world is a joy to walk around in. Apparently, it has deep hidden meanings, but I didn’t pick up on a single one of them."},
+
+      {name:'Mafia II', rating:3, hours:10, cover:'covers/mafia2.jpg',
+       thoughts:"Unfortunately, I didn’t pay much attention to Mafia 2’s story, but what I saw looked very interesting. The gameplay is good, although it feels a little dated. This time you also have more freedom to explore the map compared to the more linear Mafia 1."},
+
+      {name:'Mafia III', rating:3, hours:13, progress:25, cover:'covers/mafia3.jpg',
+       thoughts:"Mafia 3 looks much better than both previous games, and its world is noticeably larger. The voice acting is pretty good and the cutscenes are beautiful. The story is good, but the gameplay is very repetitive across main and side missions, since it’s always going somewhere, shooting some people, and coming back, and that made me slightly bored of the story, so I dropped it about a quarter of the way in. The side missions are at least well designed, with a mechanic of taking over areas and generating revenue from them."},
+
+      {name:"Demon's Souls", rating:3, hours:26, cover:'covers/demon_souls.jpg',
+       thoughts:"Demon’s Souls is by far the weakest game in the franchise, but that makes sense, since it was the first and serves as a blueprint for the rest. Too many enemies gang up on you at times, and the long runbacks to boss fights are annoying. The world looks good because it’s a remake, but even so, the gameplay and level design still feel slightly dated. Unfortunately, it didn’t feel worth 40 euros."},
+
+      {name:'Limbo', rating:3, hours:3, cover:'covers/limbo.jpg',
+       thoughts:"Limbo has a unique art style and a satisfying puzzle-platforming experience, but that’s about it. People talk about its great storytelling and call it a masterpiece, but I don’t see it, probably because it was first released in 2010 and was unique back then. It’s also short, at only about 3 hours, but that’s not a big problem. Overall, it didn’t interest me."},
+
+      {name:'Inside', rating:3, hours:4, cover:'covers/inside.jpeg',
+       thoughts:"Inside is the successor to Limbo, with an equally creepy atmosphere and the same satisfying puzzle-platforming experience. Its art style is slightly better, since it has color and more environmental detail. However, it lacks any form of story, and you almost have to invent one on your own, which I find kind of lazy, rather than giving us more hints toward an actual in-game story."}
     ] },
 
   { num:2, color:'#4f5a68', label:'Poor', title:'An experience that felt tedious or pointless more often than not.',
     games:[
-      {name:'Lies of P', rating:2, hours:37, progress:90, cover:'covers/lies_of_p.jpg'},
-      {name:'Resident Evil 7: Biohazard', rating:2, hours:11, cover:'covers/re7.jpg'}
+      {name:'Lies of P', rating:2, hours:37, progress:90, cover:'covers/lies_of_p.jpg',
+       thoughts:"Lies of P feels like a game that can’t decide what it is. It mixes gameplay elements from Dark Souls, Sekiro and Bloodborne, and you need to use all of them in a boss fight, which makes it complicated and slightly tedious. Each of those games has one core mechanic you need to master, whereas Lies of P gives you three that you use less often. It’s a very beautiful game, the story keeps your interest, and the side quests are easy to understand and remember. However, it’s often unclear whether you should dodge or parry an attack, and parrying sometimes feels unreliable. Some boss attacks also seem unclear, sometimes with no warning. In the end, I lost all interest in the gameplay and dropped the game with only three bosses remaining."},
+
+      {name:'Resident Evil 7: Biohazard', rating:2, hours:11, cover:'covers/re7.jpg',
+       thoughts:"Resident Evil 7 is regarded as the scariest Resident Evil game, but I didn’t find it very scary, maybe because almost 10 years have passed since its release and it was the first truly scary attempt at a Resident Evil game. I couldn’t get attached to or relate to Ethan, the protagonist, because we never see him or learn much about him. The story is decent but nothing amazing. I also don’t like the game’s color palette: it’s very gray and dark, but that doesn’t make the game any scarier. Mr. Baker is a great antagonist, but because the house is so small, he doesn’t chase you nearly as much as Nemesis does in Resident Evil 3. Overall, unfortunately, it’s the most bland experience I’ve ever had in a Resident Evil game."}
     ] },
 
   { num:1, color:'#454c56', label:'Total Letdown', title:"An experience that simply didn't work, from start to finish.",
@@ -258,7 +542,7 @@ function smoothTo(el){
     const progress = Math.min((now - startTime) / duration, 1);
     window.scrollTo(0, startY + (targetY - startY) * scrollEase(progress));
     if (progress < 1) requestAnimationFrame(step);
-    else document.documentElement.style.scrollSnapType = '';
+    else document.documentElement.style.scrollSnapType = "";
   }
   requestAnimationFrame(step);
 }
@@ -278,7 +562,7 @@ landing.innerHTML = `
   <div class="landing-head">
     <h1 class="landing-phrase">Games are art.</h1>
     <p class="landing-sub">Worlds I've lived in, and what they left me with.</p>
-    <div class="landing-strip" aria-hidden="true">${TIERS.map(t => `<span style="background:${t.color}"></span>`).join('')}</div>
+    <div class="landing-strip" aria-hidden="true">${TIERS.map(t => `<span style="background:${t.color}"></span>`).join("")}</div>
     <p class="landing-stats"><b>${totalGames.toLocaleString('en-US')}</b> ${totalGames === 1 ? 'game' : 'games'} · <b>${totalHours.toLocaleString('en-US')}</b> ${totalHours === 1 ? 'hour' : 'hours'}</p>
   </div>
   <div class="scroll-cue" aria-hidden="true">Scroll</div>`;
@@ -300,19 +584,19 @@ TIERS.forEach((t) => {
   section.style.setProperty('--tc', t.color);
   section.style.setProperty('--cs', hexToRgba(t.color, .3));
 
-  const cards = t.games.map(g => `
+  const cards = t.games.map((g, idx) => `
     <div class="card">
-      <div class="cover">
+      <div class="cover" data-tier="${t.num}" data-index="${idx}" tabindex="0" role="button" aria-label="View thoughts for ${g.name}">
         ${g.cover ? `<img src="${g.cover}" alt="${g.name} cover">` : `<div class="placeholder">${g.name}</div>`}
       </div>
       <div class="info">
         <div class="name">${g.name}</div>
         <div class="meta">
           <span class="rating">${g.rating}<span class="star">★</span></span>
-          <span>${g.progress != null && g.progress < 100 ? `<span class="incomplete">${g.progress}%</span> · ` : ''}${g.hours != null ? g.hours + ' hrs' : '— hrs'}</span>
+          <span>${g.progress != null && g.progress < 100 ? `<span class="incomplete">${g.progress}%</span> · ` : ""}${g.hours != null ? g.hours + ' hrs' : '— hrs'}</span>
         </div>
       </div>
-    </div>`).join('');
+    </div>`).join("");
 
   const body = t.games.length ? `<div class="rail">${cards}</div>` : `<p class="empty-tier">Nothing here — yet.</p>`;
 
@@ -344,20 +628,79 @@ const io = new IntersectionObserver(entries=>{
 }, {rootMargin:'-50% 0px -50% 0px', threshold:0});
 [...tiersEl.children].forEach(s=>io.observe(s));
 
-
-
 /* ---------- Footer: Play again ---------- */
 document.getElementById('play-again').addEventListener('click', e => { e.preventDefault(); smoothTo(landing); });
 
+/* ---------- Modal Logic ---------- */
+const modalOverlay = document.getElementById('modalOverlay');
+const modalTitle = document.getElementById('modalTitle');
+const modalMeta = document.getElementById('modalMeta');
+const modalThoughts = document.getElementById('modalThoughts');
+const modalCard = document.getElementById('modalCard');
+const modalRatingNum = document.getElementById('modalRatingNum');
+
+function openModal(game, tierColor) {
+  modalCard.style.setProperty('--tc', tierColor);
+  modalTitle.innerHTML = game.name;
+  
+  modalRatingNum.textContent = game.rating;
+  
+  const hoursText = game.hours != null ? `${game.hours} hours` : '— hours';
+  const progressText = game.progress != null && game.progress < 100 ? ` · <span class="progress-text">${game.progress}% completed</span>` : "";
+  
+  modalMeta.innerHTML = `${hoursText}${progressText}`;
+  
+  modalThoughts.textContent = game.thoughts || "No thoughts logged for this game yet.";
+  
+  modalOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  modalOverlay.classList.remove('active');
+  document.body.style.overflow = "";
+}
+
+// Close via clicking background overlay or pressing Escape
+modalOverlay.addEventListener('click', (e) => {
+  if (e.target === modalOverlay) closeModal();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal();
+});
+
+// Helper function to handle opening the modal from a card
+function handleCardInteraction(e) {
+  const cover = e.target.closest('.cover');
+  if (!cover) return;
+  
+  const tierNum = cover.dataset.tier;
+  const gameIdx = cover.dataset.index;
+  const tierObj = TIERS.find(t => t.num == tierNum);
+  if (tierObj && tierObj.games[gameIdx]) {
+    openModal(tierObj.games[gameIdx], tierObj.color);
+  }
+}
+
+// Listen for clicks on #tiers
+document.getElementById('tiers').addEventListener('click', handleCardInteraction);
+
+// Listen for keyboard interaction (Enter or Space) on #tiers
+document.getElementById('tiers').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    handleCardInteraction(e);
+  }
+});
+
 function resetScroll(){
   window.scrollTo(0, 0);
-  document.documentElement.style.scrollSnapType = '';
+  document.documentElement.style.scrollSnapType = "";
 }
 
 requestAnimationFrame(resetScroll);
 window.addEventListener('load', resetScroll);
 window.addEventListener('pageshow', e => { if (e.persisted) resetScroll(); });
-
 </script>
 </body>
 </html>
